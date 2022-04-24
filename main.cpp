@@ -23,7 +23,7 @@ int main() {
 			vector<char> split = { equation.begin(), equation.end() };
 			inter.interpret(split);
 			basic.simpleMath(split, inter.simple, inter.addition, inter.subtraction, 
-				inter.multiplication, inter.division, inter.pairsofparenthesis);
+				inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
 		
 			cout << "= " << basic.answer << std::endl;
 			split.clear();

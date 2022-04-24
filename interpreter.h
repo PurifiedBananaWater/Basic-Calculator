@@ -6,7 +6,7 @@ namespace Interpreter {
 
 		public:
 			bool simple;
-			int addition, subtraction, multiplication, division, pairsofparenthesis, operators;
+			int addition, subtraction, multiplication, division, pairsofparenthesis, exponent, operators;
 			void interpret(std::vector<char>& arr);
 	};
 	void Interpreter::interpret(std::vector<char>& arr) {
@@ -15,6 +15,7 @@ namespace Interpreter {
 		multiplication = 0;
 		division = 0;
 		pairsofparenthesis = 0;
+		exponent = 0;
 		operators = 0;
 		int n = 0;
 		int index = -1;
@@ -65,6 +66,15 @@ namespace Interpreter {
 				}
 				pairsofparenthesis++;
 				operators += 2;
+				n++;
+				index = n;
+				continue;
+			case '^':
+				if (arr[n + 1] == '-') {
+					subtraction--;
+				}
+				exponent++;
+				operators++;
 				n++;
 				index = n;
 				continue;
