@@ -6,29 +6,23 @@ namespace Interpreter {
 
 		public:
 			bool simple;
-			std::vector<char> split;
-			int addition;
-			int subtraction;
-			int multiplication;
-			int division;
-			int operators;
-			void interpret(std::string equation);
+			int addition, subtraction, multiplication, division, pairsofparenthesis, operators;
+			void interpret(std::vector<char>& arr);
 	};
-	void Interpreter::interpret(std::string equation) {
-		split = {equation.begin(), equation.end()};
+	void Interpreter::interpret(std::vector<char>& arr) {
 		addition = 0;
 		subtraction = 0;
 		multiplication = 0;
 		division = 0;
+		pairsofparenthesis = 0;
 		operators = 0;
 		int n = 0;
 		int index = -1;
-		for (char i : split) {
+		for (char i : arr) {
 			switch (i) {
 			case '+':
-				if (split[n + 1] == '-') {
+				if (arr[n + 1] == '-') {
 					subtraction--;
-					//index = n + 1;
 				}
 				addition++;
 				operators++;
@@ -36,11 +30,10 @@ namespace Interpreter {
 				index = n;
 				continue;
 			case '-':
-				if (split[n] == '-' && n != index) {
+				if (arr[n] == '-' && n != index) {
 					subtraction--;
-					//index = n;
 				}
-				else if (split[n + 1] == '-') {
+				else if (arr[n + 1] == '-') {
 					subtraction--;
 				}
 				subtraction++;
@@ -49,9 +42,8 @@ namespace Interpreter {
 				index = n;
 				continue;
 			case '*':
-				if (split[n + 1] == '-') {
+				if (arr[n + 1] == '-') {
 					subtraction--;
-					//index = n + 1;
 				}
 				multiplication++;
 				operators++;
@@ -59,12 +51,20 @@ namespace Interpreter {
 				index = n;
 				continue;
 			case '/':
-				if (split[n + 1] == '-') {
+				if (arr[n + 1] == '-') {
 					subtraction--;
-					//index = n + 1;
 				}
 				division++;
 				operators++;
+				n++;
+				index = n;
+				continue;
+			case '(':
+				if (arr[n + 1] == '-') {
+					subtraction--;
+				}
+				pairsofparenthesis++;
+				operators += 2;
 				n++;
 				index = n;
 				continue;

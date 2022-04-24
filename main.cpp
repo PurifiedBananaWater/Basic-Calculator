@@ -9,6 +9,7 @@
 using std::cout;
 using std::cin;
 using std::string;
+using std::vector;
 
 
 int main() {
@@ -18,12 +19,16 @@ int main() {
 	while (equation != "Exit") {
 		cout << "Calculator: Enter equation below:\n";
 		cin >> equation;
-		inter.interpret(equation);
-		basic.simpleMath(inter.simple, inter.addition, inter.subtraction, inter.multiplication, inter.division);
 		if (equation != "Exit") {
+			vector<char> split = { equation.begin(), equation.end() };
+			inter.interpret(split);
+			basic.simpleMath(split, inter.simple, inter.addition, inter.subtraction, 
+				inter.multiplication, inter.division, inter.pairsofparenthesis);
+		
 			cout << "= " << basic.answer << std::endl;
+			split.clear();
 		}
-		inter.split.clear();
+		
 	}
 	return 0;
 }
