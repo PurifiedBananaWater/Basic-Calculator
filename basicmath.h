@@ -85,7 +85,8 @@ namespace BasicMath {
                     case ')':
                         if (index2 + 1 <= arr.size() - 1) {
                             if (arr[index2 + 1] == '+' || arr[index2 + 1] == '-'
-                                || arr[index2 + 1] == '*' || arr[index2 + 1] == '/') {
+                                || arr[index2 + 1] == '*' || arr[index2 + 1] == '/' 
+                                || arr[index2 + 1] == '^') {
                                 arr.erase(arr.begin() + index1);
                                 arr.erase(arr.begin() + index2 - 1);
                                 within.clear();
@@ -133,6 +134,10 @@ namespace BasicMath {
                     arr.erase(arr.begin() + index2 - 1);
                     
                     break;
+                case '^':
+                    arr.erase(arr.begin() + index1);
+                    arr.erase(arr.begin() + index2 - 1);
+                    break;
                 default:
                     arr.erase(arr.begin() + index1);
                     arr.erase(arr.begin() + index2 - 1);
@@ -147,6 +152,8 @@ namespace BasicMath {
         
     }
     void BasicMath::exponents(std::vector<char>& arr, int exponent) {
+        /// (2^(1+1)) breaks code
+
         int index1 = 0;
         int index2 = 0;
         while (exponent != 0) {
