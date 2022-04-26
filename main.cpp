@@ -2,7 +2,8 @@
 #include<string>
 #include<algorithm>
 #include<vector>
-#include"basicmath.h"
+#include"algebraone.h"
+
 
 
 
@@ -13,7 +14,8 @@ using std::vector;
 
 
 int main() {
-	BasicMath::BasicMath basic;
+	
+	AlgebraOne::AlgebraOne alg1;
 	string equation;
 	
 	while (equation != "Exit") {
@@ -21,11 +23,16 @@ int main() {
 		cin >> equation;
 		if (equation != "Exit") {
 			vector<char> split = { equation.begin(), equation.end() };
-			inter.interpret(split);
-			basic.simpleMath(split, inter.simple, inter.addition, inter.subtraction, 
-				inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
-		
-			cout << "= " << basic.answer << std::endl;
+			if (equation == "Simplify") {
+				inter.interpret(split);
+
+			}
+			else {
+				inter.interpret(split);
+				basic.simpleMath(split, inter.simple, inter.addition, inter.subtraction,
+					inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
+				cout << "= " << basic.answer << std::endl;
+			}
 			split.clear();
 		}
 		

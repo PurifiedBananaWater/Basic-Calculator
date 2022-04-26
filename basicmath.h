@@ -5,6 +5,9 @@
 #include <math.h>
 #include"interpreter.h"
 
+
+//Need to implement sqrt
+
 Interpreter::Interpreter inter;
 namespace BasicMath {
     class BasicMath {
@@ -152,8 +155,6 @@ namespace BasicMath {
         
     }
     void BasicMath::exponents(std::vector<char>& arr, int exponent) {
-        /// (2^(1+1)) breaks code
-
         int index1 = 0;
         int index2 = 0;
         while (exponent != 0) {
@@ -427,11 +428,18 @@ namespace BasicMath {
                     BasicMath::getNumsSimple(arr, '^');
                     answer = pow(stod(nums1), stod(nums2));
                 }
+                else if (pairsofparenthesis > 0) {
+                    BasicMath::parenthesis(arr, inter.pairsofparenthesis);
+                    inter.interpret(arr);
+                    simpleMath(arr, inter.simple, inter.addition, inter.subtraction,
+                        inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
+
+                    
+                }
                 break;
             case false:
                 BasicMath::parenthesis(arr, inter.pairsofparenthesis);
                 inter.interpret(arr);
-                //Exponents are wonky
                 BasicMath::exponents(arr, inter.exponent);
                 inter.interpret(arr);
                 BasicMath::orderOfOperations(arr, inter.addition, inter.subtraction, inter.multiplication, inter.division);
