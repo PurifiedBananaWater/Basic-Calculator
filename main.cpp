@@ -24,8 +24,14 @@ int main() {
 		if (equation != "Exit") {
 			vector<char> split = { equation.begin(), equation.end() };
 			if (equation == "Simplify") {
+				split.clear();
+				cout << "Add expression to simplify below:\n";
+				cin >> equation;
+				split = { equation.begin(), equation.end() };
 				inter.interpret(split);
-
+				alg1.simplify(split, inter.addition, inter.subtraction,
+					inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent, inter.letters);
+				cout << alg1.answer << std::endl;
 			}
 			else {
 				inter.interpret(split);

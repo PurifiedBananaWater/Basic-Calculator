@@ -433,8 +433,13 @@ namespace BasicMath {
                     inter.interpret(arr);
                     simpleMath(arr, inter.simple, inter.addition, inter.subtraction,
                         inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
-
-                    
+                }
+                else {
+                    std::string num = "";
+                    for (char elem : arr) {
+                        num = num + elem;
+                    }
+                    answer = stod(num);
                 }
                 break;
             case false:
