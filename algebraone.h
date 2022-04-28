@@ -57,14 +57,17 @@ namespace AlgebraOne {
         std::vector<char> firstnum;
         std::vector<char> secondnum;
         char before_num;
-        char x_num;
+        std::string x_nums = "";
+        double x_num;
         bool left = false;
-
+        answer = "";
+        //5x+3=13
+        
         //bool right = false;
         if (itletter < itequal) {
             left = true;
             before_num = *(itletter + 1);
-            //x_num =
+            x_num = std::stod(accumulate(begin(arr), itletter, x_nums));
             firstnum = { itletter + 2, itequal };
             secondnum = { itequal + 1, end(arr)};
         }
@@ -97,6 +100,11 @@ namespace AlgebraOne {
 
             }
         }
+        num1 = num2 / x_num; //5x+3=13
+
+        answer = answer + *itletter + *itequal + std::to_string(num1);
+
+        
 
 
     } 
