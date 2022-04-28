@@ -15,12 +15,12 @@ namespace AlgebraOne {
         public:
             std::string answer;
             bool isInAlpha(char var);
-            std::vector<char>::iterator alphaIt(std::vector<char>& arr);
-            void quickSolve(std::vector<char>& side);
-            void combineLikeTerms(std::vector<char>& arr, std::vector<char>::iterator itequal, 
-                std::vector<char>::iterator itletter);
-            void oneLetter(std::vector<char>& arr);
-            void simplify(std::vector<char>& arr, int addition, int subtraction, int multiplication,
+            auto alphaIt(std::string& arr);
+            void quickSolve(std::string& side);
+            void combineLikeTerms(std::string& arr, std::string::iterator itequal,
+                std::string::iterator itletter);
+            void oneLetter(std::string& arr);
+            void simplify(std::string& arr, int addition, int subtraction, int multiplication,
                 int division, int pairsofparenthesis, int exponent, int letters);
     };
     bool AlgebraOne::isInAlpha(char var) {
@@ -35,9 +35,9 @@ namespace AlgebraOne {
             return false;
         }
     }
-    std::vector<char>::iterator AlgebraOne::alphaIt(std::vector<char>& arr) {
-        std::vector<char>::iterator it = begin(arr);
-        std::vector<char>::iterator itletter;
+    auto AlgebraOne::alphaIt(std::string& arr) {
+        auto it = begin(arr);
+        std::string::iterator itletter;
         for (char elem : arr) {
             if (AlgebraOne::isInAlpha(elem) == true) {
                 itletter = it;
@@ -47,15 +47,19 @@ namespace AlgebraOne {
         }
         return itletter;
     }
-    void AlgebraOne::quickSolve(std::vector<char>& side) {
+    void AlgebraOne::quickSolve(std::string& side) {
         inter.interpret(side);
         basic.simpleMath(side, inter.simple, inter.addition, inter.subtraction,
             inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
     } 
     
-    void AlgebraOne::combineLikeTerms(std::vector<char>& arr, std::vector<char>::iterator itequal, std::vector<char>::iterator itletter) {
-        std::vector<char> firstnum;
-        std::vector<char> secondnum;
+    void AlgebraOne::combineLikeTerms(std::string& arr, std::string::iterator itequal, std::string::iterator itletter) {
+        std::string firstnum;
+        std::string secondnum;
+        std::string::iterator x_numit;
+        std::string ops = "+-*/";
+        //x_numit = find_if(begin(arr), itletter, [ops](auto elem)
+            //{return *elem == find(begin(ops), end(ops), *elem); }); //Left off here want to return it of last occurence of a char in ops before letter maybe for_each instead
         char before_num;
         std::string x_nums = "";
         double x_num;
@@ -109,13 +113,13 @@ namespace AlgebraOne {
 
     } 
     
-    void AlgebraOne::oneLetter(std::vector<char>& arr) {
+    void AlgebraOne::oneLetter(std::string& arr) {
         //std::string answer;
 
-        std::vector<char>::iterator it = begin(arr);
-        std::vector<char>::iterator it2;
-        std::vector<char>::iterator itletter;
-        std::vector<char>::iterator itequal = find(begin(arr), end(arr), '=');
+        auto it = begin(arr);
+        auto it2 = begin(arr);
+        auto itletter = begin(arr);
+        auto itequal = find(begin(arr), end(arr), '=');
 
         for (char elem : arr) {
             if (AlgebraOne::isInAlpha(elem) == true) {
@@ -133,8 +137,8 @@ namespace AlgebraOne {
             }
             it--;
         }
-        std::vector<char> equation1;
-        std::vector<char> equation2;
+        std::string equation1;
+        std::string equation2;
         bool before_equal = false;
         bool after_equal = false;
         if (it == it2 + 2) {
@@ -159,8 +163,8 @@ namespace AlgebraOne {
             AlgebraOne::quickSolve(equation2);
         }
         std::string side2 = std::to_string(basic.answer);
-        std::vector<char> leftside;
-        std::vector<char> rightside;
+        std::string leftside;
+        std::string rightside;
         if (itletter < itequal) {
             leftside = { begin(side1), end(side1) };
             rightside = { begin(side2), end(side2) };
@@ -189,7 +193,7 @@ namespace AlgebraOne {
     }
     
     //5x+3=13
-    void AlgebraOne::simplify(std::vector<char>& arr, int addition, int subtraction, int multiplication,
+    void AlgebraOne::simplify(std::string& arr, int addition, int subtraction, int multiplication,
         int division, int pairsofparenthesis, int exponent, int letters) {
         if (letters == 1) {
             AlgebraOne::oneLetter(arr);
