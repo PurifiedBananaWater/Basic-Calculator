@@ -20,7 +20,6 @@ namespace BasicMath {
         public:
             const std::string operator_string = "+-*/^";
             double answer;
-            auto isInOpString(char elem);
             void eraseBrackets(std::string& arr, std::string::iterator left_bracket, std::string::iterator right_bracket);
             void getBracketIts(std::string& arr);
             void getNumsSimple(std::string& arr, char op);
@@ -31,10 +30,6 @@ namespace BasicMath {
                 int division, int pairsofparenthesis, int exponent);
         
     };
-    auto BasicMath::isInOpString(char elem) {
-        char character = *find(begin(operator_string), end(operator_string), elem);
-        return elem == character;
-    }
     void BasicMath::eraseBrackets(std::string& arr, std::string::iterator left_bracket_it, std::string::iterator right_bracket_it) {
         arr.erase(left_bracket_it);
         arr.erase(right_bracket_it - 1);
@@ -44,14 +39,14 @@ namespace BasicMath {
         right_bracket_it = find(begin(arr), end(arr), ')');
         left_bracket_it = find_end(begin(arr), right_bracket_it, begin(leftbracket), end(leftbracket));   
     }
-    void BasicMath::getNumsSimple(std::string& arr, char op) {
+    void BasicMath::getNumsSimple(std::string& arr, char op) {//If equation is simple this sets nums1 and nums2
         std::string::iterator it;
         std::string::iterator opit = find(begin(arr), end(arr), op);
         nums1 = { begin(arr), opit };
         nums2 = { opit + 1, end(arr) };
     }
-    void BasicMath::parenthesis(std::string& arr, int pairsofparenthesis) {    
-        while (pairsofparenthesis != 0) {
+    void BasicMath::parenthesis(std::string& arr, int pairsofparenthesis) {//Runs through and completes equations
+        while (pairsofparenthesis != 0) {                                  //within any parenthesis
                 BasicMath::getBracketIts(arr);
                 within.insert(within.begin(), left_bracket_it + 1, right_bracket_it);
                 inter.interpret(within);
@@ -121,7 +116,7 @@ namespace BasicMath {
                 pairsofparenthesis--;  
         }  
     }
-    void BasicMath::exponents(std::string& arr, int exponent) {
+    void BasicMath::exponents(std::string& arr, int exponent) {//Solves exponent equations
         std::string::iterator it1, it2, it3;
         std::string::reverse_iterator r_it1;
         while (exponent != 0) {
@@ -141,12 +136,9 @@ namespace BasicMath {
                     if (std::find(begin(ops), end(ops), elem) != end(ops)) {
                         return elem == *(std::find(begin(ops), end(ops), elem));
                     }};
-
-                
                 if (std::find_if(r_it1, rend(arr), r_is_in_opstring) != rend(arr)) {
                     it1 = (r_it1 - 1).base();
                 }
-                
                 if (*(begin(arr)) == '-' && it1 - 1 == begin(arr)) {
                     it1 = it1 - 1;
                 }
@@ -171,8 +163,8 @@ namespace BasicMath {
         }
     }
     void BasicMath::orderOfOperations(std::string& arr, int addition, int subtraction, int multiplication, int division) {
-        std::string::iterator it1, it2, it3;
-        std::string::reverse_iterator r_it1;
+        std::string::iterator it1, it2, it3;                                        //Solves equations with *,/,+,-
+        std::string::reverse_iterator r_it1;                                        //Does normal order of operations
         auto ops = operator_string;
         while (addition != 0 || subtraction != 0 || multiplication != 0 || division != 0) {
             it1 = begin(arr);
@@ -202,9 +194,9 @@ namespace BasicMath {
                     return false;
                 }
                 };
-            if (std::find_if(begin(arr), end(arr), mult_or_div) != end(arr)) {
-                it2 = std::find_if(begin(arr), end(arr), mult_or_div);
-                it3 = it2 + 1;
+            if (std::find_if(begin(arr), end(arr), mult_or_div) != end(arr)) {//If find_if() finds a * or / char
+                it2 = std::find_if(begin(arr), end(arr), mult_or_div);        //it solves it and puts the number back into
+                it3 = it2 + 1;                                                //the equation
                 if (*begin(arr) == '-') {
                     it1 = begin(arr);
                 }
@@ -234,9 +226,9 @@ namespace BasicMath {
                         continue;
                 }
             }
-            else if(std::find_if(begin(arr), end(arr), add_or_sub) != end(arr)) {
-                it2 = std::find_if(begin(arr), end(arr), add_or_sub);
-                it3 = it2 + 1;
+            else if(std::find_if(begin(arr), end(arr), add_or_sub) != end(arr)) {//If find_if() finds a + or - char
+                it2 = std::find_if(begin(arr), end(arr), add_or_sub);            //it solves it and puts the number back into
+                it3 = it2 + 1;                                                   //the equation
 
                 if (*begin(arr) == '-') {
                     it1 = begin(arr);
@@ -271,11 +263,11 @@ namespace BasicMath {
         answer = num1;
     }
     void BasicMath::simpleMath(std::string& arr, bool simple, int addition, int subtraction, 
-        int multiplication, int division, int pairsofparenthesis, int exponent) {
-        std::string::iterator it1 = begin(arr);
-        std::string::iterator it2 = end(arr);
-        switch (simple) {
-            case true:
+        int multiplication, int division, int pairsofparenthesis, int exponent) {//If equation has one or zero operators
+        std::string::iterator it1 = begin(arr);                                  //it's passed to the true case
+        std::string::iterator it2 = end(arr);                                    //it's not necessary but saves compute time
+        switch (simple) {                                                        //If simple is false it's solved
+            case true:                                                           //through PEMDAS 
                 if (addition > 0) {
                     BasicMath::getNumsSimple(arr, '+');
                     answer = stod(nums1) + stod(nums2);
