@@ -7,7 +7,7 @@
 #include <iterator>
 #include"interpreter.h"
 
-//Need to implement sqrt
+
 Interpreter::Interpreter inter;
 namespace BasicMath {
     class BasicMath {
@@ -40,8 +40,12 @@ namespace BasicMath {
         left_bracket_it = find_end(begin(arr), right_bracket_it, begin(leftbracket), end(leftbracket));   
     }
     void BasicMath::getNumsSimple(std::string& arr, char op) {//If equation is simple this sets nums1 and nums2
-        std::string::iterator it;
+        std::string::iterator it = begin(arr);
         std::string::iterator opit = find(begin(arr), end(arr), op);
+        if (opit == begin(arr)) {
+            opit++;
+            opit = find(opit, end(arr), op);
+        }
         nums1 = { begin(arr), opit };
         nums2 = { opit + 1, end(arr) };
     }
@@ -204,18 +208,25 @@ namespace BasicMath {
                 if (std::find(begin(ops), end(ops), elem) != end(ops)) {
                     return elem == *(std::find(begin(ops), end(ops), elem));
                 }
-                else {
-                    return false;
-                }
+                else { return false; }
                 };
+            auto r_is_in_opstring = [ops, &r_it1](char elem) mutable {
+                if (std::find(begin(ops), end(ops), elem) != end(ops)) {
+                    return elem == *(std::find(begin(ops), end(ops), elem));
+                }
+                else { return false; }
+            };
             if (std::find_if(begin(arr), end(arr), mult_or_div) != end(arr)) {//If find_if() finds a * or / char
                 it2 = std::find_if(begin(arr), end(arr), mult_or_div);        //it solves it and puts the number back into
-                it3 = it2 + 1;                                                //the equation
+                it3 = it2 + 1;
+                r_it1 = std::make_reverse_iterator(it2);
+                r_it1 = std::find_if(r_it1, rend(arr), r_is_in_opstring);//the equation
+                it1 = r_it1.base();
                 if (*begin(arr) == '-') {
                     it1 = begin(arr);
                 }
-                else if (*(r_it1.base() + 1) == '-') {
-                    it1 = (r_it1.base() + 1);
+                else if (*(r_it1.base()) == '-') {
+                    it1 = r_it1.base();
                 }
                 nums1 = {it1, it2};
 
@@ -247,9 +258,10 @@ namespace BasicMath {
                 if (*begin(arr) == '-') {
                     it1 = begin(arr);
                     it2 = std::find_if(begin(arr) + 1, end(arr), add_or_sub);
+                    it3 = it2 + 1;
                     
                 }
-                else if (*(it3) == '-') {
+                if (*(it3) == '-' ) {
                     
                     it3 = it3 + 1;   
                 }

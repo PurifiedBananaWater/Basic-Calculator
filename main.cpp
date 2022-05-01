@@ -20,9 +20,10 @@ int main() {
 	string expression;
 	
 	while (equation != "Exit") {
-		cout << "Type ^/ for square root i.e ^/4 = 2\n";
-		cout << "or ^/(100+44) = 12\n";
+		cout << "Type ^/ for square root i.e ^/4 = 2 or ^/(100+44) = 12\n";
+		cout << "An equation with square root 2(^/4) = 4\n\n";
 		cout << "Type Simplify (expression) to simplify expression.\n";
+		cout << "i.e Simplify 5x+3=13   x = 2\n\n";
 		cout << "Calculator: Enter equation below:\n";
 		cin >> equation;
 		if (equation != "Exit") {
@@ -42,6 +43,7 @@ int main() {
 				cout << "= " << basic.answer << std::endl;
 			}
 		}
+		cout << std::endl;
 		
 	}
 	return 0;
