@@ -20,6 +20,9 @@ int main() {
 	string expression;
 	
 	while (equation != "Exit") {
+		cout << "Type ^/ for square root i.e ^/4 = 2\n";
+		cout << "or ^/(100+44) = 12\n";
+		cout << "Type Simplify (expression) to simplify expression.\n";
 		cout << "Calculator: Enter equation below:\n";
 		cin >> equation;
 		if (equation != "Exit") {

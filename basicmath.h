@@ -116,7 +116,7 @@ namespace BasicMath {
                 pairsofparenthesis--;  
         }  
     }
-    void BasicMath::exponents(std::string& arr, int exponent) {//Solves exponent equations
+    void BasicMath::exponents(std::string& arr, int exponent) {//Solves for exponents and square root
         std::string::iterator it1, it2, it3;
         std::string::reverse_iterator r_it1;
         while (exponent != 0) {
@@ -136,27 +136,41 @@ namespace BasicMath {
                     if (std::find(begin(ops), end(ops), elem) != end(ops)) {
                         return elem == *(std::find(begin(ops), end(ops), elem));
                     }};
-                if (std::find_if(r_it1, rend(arr), r_is_in_opstring) != rend(arr)) {
-                    it1 = (r_it1 - 1).base();
-                }
-                if (*(begin(arr)) == '-' && it1 - 1 == begin(arr)) {
-                    it1 = it1 - 1;
-                }
-
-                nums1 = {it1, it2};
-                it3 = std::find_if(it2 + 1, end(arr), is_in_opstring);
-
-                if (it3 == end(arr)) {
-                    nums2 = { (it2 + 1), (it3) };
+                if (*it2 == '^' && *it3 == '/') {
+                    
+                    it3 = std::find_if(it3 + 1, end(arr), is_in_opstring);;
+                    nums1 = {it2 + 2, it3};
+                    num1 = sqrt(stod(nums1));
+                    arr.erase(it2, it3);
+                    numinsert = std::to_string(num1);
+                    arr.insert(it2, numinsert.begin(), numinsert.end());
+                    exponent--;
+                    inter.exponent--;
+                    inter.division--;
                 }
                 else {
-                    nums2 = { (it2 + 1), (it3 + 1) };
-                }  
-                num1 = pow(stod(nums1), stod(nums2));
-                arr.erase(it1 , it3);
-                numinsert = std::to_string(num1);
-                arr.insert(it1, numinsert.begin(), numinsert.end());
-                exponent--;
+                    if (std::find_if(r_it1, rend(arr), r_is_in_opstring) != rend(arr)) {
+                        it1 = (r_it1 - 1).base();
+                    }
+                    if (*(begin(arr)) == '-' && it1 - 1 == begin(arr)) {
+                        it1 = it1 - 1;
+                    }
+
+                    nums1 = { it1, it2 };
+                    it3 = std::find_if(it2 + 1, end(arr), is_in_opstring);
+
+                    if (it3 == end(arr)) {
+                        nums2 = { (it2 + 1), (it3) };
+                    }
+                    else {
+                        nums2 = { (it2 + 1), (it3 + 1) };
+                    }
+                    num1 = pow(stod(nums1), stod(nums2));
+                    arr.erase(it1, it3);
+                    numinsert = std::to_string(num1);
+                    arr.insert(it1, numinsert.begin(), numinsert.end());
+                    exponent--; 
+                }
                 nums1 = "";
                 nums2 = "";
             }
