@@ -4,15 +4,10 @@
 #include<array>
 #include<algorithm>
 #include <math.h>
+#include <iterator>
 #include"interpreter.h"
 
-
 //Need to implement sqrt
-
-
-
- 
-
 Interpreter::Interpreter inter;
 namespace BasicMath {
     class BasicMath {
@@ -25,6 +20,7 @@ namespace BasicMath {
         public:
             const std::string operator_string = "+-*/^";
             double answer;
+            auto isInOpString(char elem);
             void eraseBrackets(std::string& arr, std::string::iterator left_bracket, std::string::iterator right_bracket);
             void getBracketIts(std::string& arr);
             void getNumsSimple(std::string& arr, char op);
@@ -35,6 +31,10 @@ namespace BasicMath {
                 int division, int pairsofparenthesis, int exponent);
         
     };
+    auto BasicMath::isInOpString(char elem) {
+        char character = *find(begin(operator_string), end(operator_string), elem);
+        return elem == character;
+    }
     void BasicMath::eraseBrackets(std::string& arr, std::string::iterator left_bracket_it, std::string::iterator right_bracket_it) {
         arr.erase(left_bracket_it);
         arr.erase(right_bracket_it - 1);
@@ -42,8 +42,7 @@ namespace BasicMath {
     void BasicMath::getBracketIts(std::string& arr) {
         const std::array<char, 1> leftbracket{ '(' };
         right_bracket_it = find(begin(arr), end(arr), ')');
-        left_bracket_it = find_end(begin(arr), right_bracket_it, begin(leftbracket), end(leftbracket));
-        
+        left_bracket_it = find_end(begin(arr), right_bracket_it, begin(leftbracket), end(leftbracket));   
     }
     void BasicMath::getNumsSimple(std::string& arr, char op) {
         std::string::iterator it;
@@ -103,7 +102,6 @@ namespace BasicMath {
                     if (*right_bracket_it + 1 != *std::find(begin(operator_string), end(operator_string), *(right_bracket_it + 1))) {
                         arr.insert(right_bracket_it + 1, '*');
                     }
-
                     BasicMath::eraseBrackets(arr, left_bracket_it, right_bracket_it);
                     break;
                 case '^':
@@ -120,264 +118,162 @@ namespace BasicMath {
                     break;
                 }
                 within.clear();
-                pairsofparenthesis--;
-            
-        }
-
-        
+                pairsofparenthesis--;  
+        }  
     }
     void BasicMath::exponents(std::string& arr, int exponent) {
-        int index1 = 0;
-        int index2 = 0;
+        std::string::iterator it1, it2, it3;
+        std::string::reverse_iterator r_it1;
         while (exponent != 0) {
-            int i = 0;
-            int n = 0;
-            bool negative = false;
+            auto ops = operator_string;
+            if (std::find(begin(arr), end(arr), '^') != end(arr)) {
+                it1 = begin(arr);
+                it2 = std::find(begin(arr), end(arr), '^');
+                it3 = it2 + 1;
+                r_it1 = std::make_reverse_iterator(find(begin(arr), end(arr), '^'));
+                auto r_is_in_opstring = [ops,&r_it1](char elem) mutable {
+                    r_it1++;
+                    if (std::find(begin(ops), end(ops), elem) != end(ops)) {
+                        return elem == *(std::find(begin(ops), end(ops), elem));
+                    }};
+                auto is_in_opstring = [ops, &it3](char elem) mutable {
+                    it3++;
+                    if (std::find(begin(ops), end(ops), elem) != end(ops)) {
+                        return elem == *(std::find(begin(ops), end(ops), elem));
+                    }};
 
-            for (char& elem : arr) {
-                if (elem == '^') {
-                    while (i != 0 && arr[i - 1] != '+' && arr[i - 1] != '-'
-                        && arr[i - 1] != '*' && arr[i - 1] != '/') {
-                        i--;
-                        index1 = i;
-                    }
-                    if (i - 1 == 0 && arr[i - 1] == '-') {
-                        negative = true;
-                        index1 = i - 1;
-                    }
-                    else if (arr[n + 1] == '-') {
-                        negative = true;
-
-                    }
-                    while (arr[i] != '+' && arr[i] != '-' && arr[i] != '*'
-                        && arr[i] != '/' && arr[i] != '^') {
-
-                        if (i - 1 == 0 && arr[i - 1] == '-' && negative == true) {
-                            i = i - 1;
-                            negative = false;
-                        }
-                        else if ((i - 2) > 0 && negative == true) {
-                            if (arr[n + 1] == '-' && arr[n] == '+' && arr[n] == '-'
-                                && arr[n] == '*' && arr[n] == '/') {
-                                i = i - 1;
-                                negative = false;
-                            }
-                        }
-                        c = (1, arr[i]);
-                        nums1 += c;
-                        i++;
-                    }
-                    if (arr[i + 1] == '-') {
-                        negative = true;
-
-                    }
-
-                    i++;
-                    while (i != arr.size() && arr[i] != '+' && arr[i] != '-'
-                        && arr[i] != '*' && arr[i] != '/' || negative == true) {
-                        c = (1, arr[i]);
-                        nums2 += c;
-                        i++;
-                        index2 = i;
-                        negative = false;
-                    }
-                    num1 = pow(stod(nums1), stod(nums2));
-                    arr.erase(arr.begin() + index1, arr.begin() + index2);
-                    numinsert = std::to_string(num1);
-                    arr.insert(arr.begin() + index1, numinsert.begin(), numinsert.end());
-                    exponent--;
-                    i = 0;
-                    n++;
+                
+                if (std::find_if(r_it1, rend(arr), r_is_in_opstring) != rend(arr)) {
+                    it1 = (r_it1 - 1).base();
                 }
-                i++;
+                
+                if (*(begin(arr)) == '-' && it1 - 1 == begin(arr)) {
+                    it1 = it1 - 1;
+                }
+
+                nums1 = {it1, it2};
+                it3 = std::find_if(it2 + 1, end(arr), is_in_opstring);
+
+                if (it3 == end(arr)) {
+                    nums2 = { (it2 + 1), (it3) };
+                }
+                else {
+                    nums2 = { (it2 + 1), (it3 + 1) };
+                }  
+                num1 = pow(stod(nums1), stod(nums2));
+                arr.erase(it1 , it3);
+                numinsert = std::to_string(num1);
+                arr.insert(it1, numinsert.begin(), numinsert.end());
+                exponent--;
                 nums1 = "";
                 nums2 = "";
             }
         }
     }
     void BasicMath::orderOfOperations(std::string& arr, int addition, int subtraction, int multiplication, int division) {
-        int i = 0;
-        int index1 = 0;
-        int index2 = 0;
-        int opindx;
-        int add = addition;
-        int sub = subtraction;
-        int mult = multiplication;
-        int div = division;
-        bool broken = false;
-        bool negative = false;
-        while (add != 0 || sub != 0 || mult != 0 || div != 0) {
-            i = 0;
-            int n = 0;
-            for (char &elem : arr) {
-                broken = false;
-                if (mult > 0 || div > 0) {
-                    if (elem == '*' || elem == '/') {
-                        while (i != 0 && arr[i - 1] != '+' && arr[i - 1] != '-'
-                            && arr[i - 1] != '*' && arr[i - 1] != '/') {
-                            i--;
-                            index1 = i;
-                        }
-                        if (i - 1 == 0 && arr[i - 1] == '-') {
-                            negative = true;
-                            index1 = i - 1;	
-                        }
-                        else if (arr[n + 1] == '-') {
-                            negative = true;
-                            
-                        }
-                        while (arr[i] != '+' && arr[i] != '-' && arr[i] != '*' 
-                            && arr[i] != '/') {
-                        
-                            if (i - 1 == 0 && arr[i - 1] == '-' && negative == true) {
-                                i = i - 1;
-                                negative = false;
-                            }
-                            else if ((i - 2) > 0 && negative == true) {
-                                if (arr[n + 1] == '-' && arr[n] == '+' && arr[n] == '-'
-                                    && arr[n] == '*' && arr[n] == '/') {
-                                    i = i - 1;
-                                    negative = false;
-                                }
-                            }
-                            c = (1, arr[i]);
-                            nums1 += c;
-                            i++;
-                        }
-                        if (arr[n + 1] == '-') {
-                            negative = true;
-                            
-                        }
-                        i++;
-                        while (i != arr.size() && arr[i] != '+' && arr[i] != '-'
-                            && arr[i] != '*' && arr[i] != '/' || negative == true) {
-                            c = (1, arr[i]);
-                            nums2 += c;
-                            i++;
-                            index2 = i;
-                            negative = false;
-                        }
-                        switch (elem) {
-                            case '*':
-                                num1 = stod(nums1) * stod(nums2);
-                                arr.erase(arr.begin() + index1, arr.begin() + index2);
-                                numinsert = std::to_string(num1);
-                                arr.insert(arr.begin() + index1, numinsert.begin(), numinsert.end());
-                                mult--;
-                                i = 0;
-                                broken = true;
-                                break;
-                            case '/':
-                                num1 = stod(nums1) / stod(nums2);
-                                arr.erase(arr.begin() + index1, arr.begin() + index2);
-                                numinsert = std::to_string(num1);
-                                arr.insert(arr.begin() + index1, numinsert.begin(), numinsert.end());
-                                i = 0;
-                                broken = true;
-                                div--;
-                                break;
-                        }
-                    }
-                    nums1 = "";
-                    nums2 = "";
-                    i++;
+        std::string::iterator it1, it2, it3;
+        std::string::reverse_iterator r_it1;
+        auto ops = operator_string;
+        while (addition != 0 || subtraction != 0 || multiplication != 0 || division != 0) {
+            it1 = begin(arr);
+            auto mult_or_div = [](char elem) mutable {
+                    switch (elem) {
+                        case '*':
+                            return true;
+                        case '/':
+                            return true;
+                        default:
+                            return false;
+                    }};
+            auto add_or_sub = [](char elem) mutable {
+                switch (elem) {
+                    case '+':
+                        return true;
+                    case '-':
+                        return true;
+                    default:
+                        return false;
+                    }};
+            auto is_in_opstring = [ops](char elem) mutable {
+                if (std::find(begin(ops), end(ops), elem) != end(ops)) {
+                    return elem == *(std::find(begin(ops), end(ops), elem));
                 }
-                else if (add > 0 || sub > 0) {
-                    if (elem == '+' || elem == '-') {	
-                        if (n == 0 && arr[n] == '-') {
-                            continue;
-                        }
-                        while (i != 0 && arr[i - 1] != '+' && arr[i - 1] != '-'
-                            && arr[i - 1] != '*' && arr[i - 1] != '/') {
-                            i--;
-                            
-                            index1 = i;
-                        }
-                        if (i == 0 && arr[i] == '-') {
-                            negative = true;
-                            index1 = i;
+                else {
+                    return false;
+                }
+                };
+            if (std::find_if(begin(arr), end(arr), mult_or_div) != end(arr)) {
+                it2 = std::find_if(begin(arr), end(arr), mult_or_div);
+                it3 = it2 + 1;
+                if (*begin(arr) == '-') {
+                    it1 = begin(arr);
+                }
+                else if (*(r_it1.base() + 1) == '-') {
+                    it1 = (r_it1.base() + 1);
+                }
+                nums1 = {it1, it2};
 
-                        }
-                        else if (i - 1 == 0 && arr[i - 1] == '-') {
-                            negative = true;
-                            index1 = i - 1;
-                        }
-                        while (arr[i] != '+' && arr[i] != '-' && arr[i] != '*'
-                            && arr[i] != '/' || negative == true) {
-                            if (i == 0 && arr[i] == '-' && negative == true) {
-                                negative = false;
-                            }
-                            else if ((i - 2) > 0 && negative == true) {
-                                if (arr[n + 1] == '-' && arr[n] == '+' && arr[n] == '-'
-                                    && arr[n] == '*' && arr[n] == '/') {
-                                    i = i - 1;
-                                    negative = false;
-                                }
-                            }
-                            else if (i - 1 == 0 && arr[i - 1] == '-' && negative == true) {
-                                i = i - 1;
-                                negative = false;
-                            }
-                            c = (1, arr[i]);
-                            nums1 += c;
-                            i++;
-                        }
-                        if (arr[i + 1] == '-') {
-                            negative = true;
-                        }
-                        opindx = i;
-                        i++;
-                        while (i != arr.size() && arr[i] != '+' && arr[i] != '-'
-                            && arr[i] != '*' && arr[i] != '/' || negative == true) {
-                            c = (1, arr[i]);
-                            nums2 += c;
-                            i++;
-                            index2 = i;
-                            negative = false;
-                        }
-                        switch (elem) {
-                        case '+':
-                            num1 = stod(nums1) + stod(nums2);
-                            arr.erase(arr.begin() + index1, arr.begin() + index2);
-                            numinsert = std::to_string(num1);
-                            arr.insert(arr.begin() + index1, numinsert.begin(), numinsert.end());
-                            i = 0;
-                            add--;
-                            broken = true;
-                            break;
-                        case '-':
-                            if (elem == arr[0] && opindx == 0) {
-                                i = 0;
-                                broken = true;
-                                break;
-                            }
-                            num1 = stod(nums1) - stod(nums2);
-                            arr.erase(arr.begin() + index1, arr.begin() + index2);
-                            numinsert = std::to_string(num1);
-                            arr.insert(arr.begin() + index1, numinsert.begin(), numinsert.end());
-                            i = 0;
-                            if (sub != 0) {
-                                sub--;
-                            }
-                            broken = true;
-                            break;
-                        }
-                    }
-                    nums1 = "";
-                    nums2 = "";
-                    i++;
+                it3 = find_if(it3, end(arr), is_in_opstring);
+
+                nums2 = { (it2 + 1), (it3) };
+
+                switch (*it2) {
+                    case '*':
+                        num1 = stod(nums1) * stod(nums2);
+                        arr.erase(it1, it3);
+                        numinsert = std::to_string(num1);
+                        arr.insert(it1, numinsert.begin(), numinsert.end());
+                        multiplication--;
+                        continue;
+                    case '/':
+                        num1 = stod(nums1) / stod(nums2);
+                        arr.erase(it1, it3);
+                        numinsert = std::to_string(num1);
+                        arr.insert(it1, numinsert.begin(), numinsert.end());
+                        division--;
+                        continue;
+                }
+            }
+            else if(std::find_if(begin(arr), end(arr), add_or_sub) != end(arr)) {
+                it2 = std::find_if(begin(arr), end(arr), add_or_sub);
+                it3 = it2 + 1;
+
+                if (*begin(arr) == '-') {
+                    it1 = begin(arr);
+                    it2 = std::find_if(begin(arr) + 1, end(arr), add_or_sub);
                     
                 }
-                if(broken == true){
-                    break;
+                else if (*(it3) == '-') {
+                    
+                    it3 = it3 + 1;   
                 }
-                n++;
+                nums1 = { it1, it2 };
+                it3 = find_if(it3, end(arr), is_in_opstring);
+                nums2 = { (it2 + 1), (it3) };
+                switch (*it2) {
+                    case '+':
+                        num1 = stod(nums1) + stod(nums2);
+                        arr.erase(it1, it3);
+                        numinsert = std::to_string(num1);
+                        arr.insert(it1, numinsert.begin(), numinsert.end());
+                        addition--;
+                        continue;
+                    case '-':
+                        num1 = stod(nums1) - stod(nums2);
+                        arr.erase(it1, it3);
+                        numinsert = std::to_string(num1);
+                        arr.insert(it1, numinsert.begin(), numinsert.end());
+                        subtraction--;
+                        continue;
+                }
             }
         }
         answer = num1;
     }
     void BasicMath::simpleMath(std::string& arr, bool simple, int addition, int subtraction, 
         int multiplication, int division, int pairsofparenthesis, int exponent) {
+        std::string::iterator it1 = begin(arr);
+        std::string::iterator it2 = end(arr);
         switch (simple) {
             case true:
                 if (addition > 0) {
@@ -407,10 +303,8 @@ namespace BasicMath {
                         inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
                 }
                 else {
-                    std::string num = "";
-                    for (char elem : arr) {
-                        num = num + elem;
-                    }
+                    std::string num;
+                    num = { it1, it2 };
                     answer = stod(num);
                 }
                 break;
