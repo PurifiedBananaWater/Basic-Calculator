@@ -23,6 +23,7 @@ int main() {
 	cout << "i.e Simplify 5x+3=13   x = 2\n\n";
 	cout << "Calculator: Enter equation below:\n";
 	while (equation != "Exit") {
+		cout << "Calculator: Enter equation below:\n";
 		cin >> equation;
 		if (equation != "Exit") {
 			if (equation == "Simplify") {
