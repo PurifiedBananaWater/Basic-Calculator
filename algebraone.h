@@ -4,30 +4,34 @@
 #include<algorithm>
 #include<math.h>
 #include<numeric>
+#include <functional>
 #include"basicmath.h"
 BasicMath::BasicMath basic;
 namespace AlgebraOne {
+    
     class AlgebraOne {
-        char alphabet[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y' ,'z'};
-        
+        private:
+            const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         public:
             std::string answer;
             bool isInAlpha(char var);
             auto alphaIt(std::string& arr);
+            void getIts(std::string& arr, std::string::iterator& letter_it, std::string::iterator& equal_it,
+                std::string::iterator& op_before_x, std::string::iterator& op_after_x, std::string::reverse_iterator& r_it1);
             void quickSolve(std::string& side);
-            void combineLikeTerms(std::string& arr, std::string::iterator itequal,
-                std::string::iterator itletter);
+            void combineSides(std::string& arr, std::string::iterator& equalt_it, std::string::iterator& letter_it,
+                std::string::iterator& op_before_x, std::string::iterator& op_after_x, std::string::reverse_iterator& r_it1);
             void oneLetter(std::string& arr);
             void simplify(std::string& arr, int addition, int subtraction, int multiplication,
                 int division, int pairsofparenthesis, int exponent, int letters);
     };
+    
     bool AlgebraOne::isInAlpha(char var) {
         var = tolower(var);
-        char* inalpha;
-        inalpha = std::find(alphabet, alphabet + 26, var);
-        if (inalpha != alphabet + 26) {
+        int inalpha;
+        inalpha = std::count(begin(alphabet), end(alphabet), tolower(var));
+        if (inalpha != 0) {
             return true;
         }
 
@@ -36,49 +40,92 @@ namespace AlgebraOne {
         }
     }
     auto AlgebraOne::alphaIt(std::string& arr) {
-        auto it = begin(arr);
         std::string::iterator itletter;
-        for (char elem : arr) {
-            if (AlgebraOne::isInAlpha(elem) == true) {
-                itletter = it;
-                break;
+        std::string alpha = alphabet;
+        itletter = find_if(begin(arr), end(arr), [alpha](char elem) mutable {
+            if (std::find(begin(alpha), end(alpha), elem) != end(alpha)) {
+                return elem == *(std::find(begin(alpha), end(alpha), elem));
             }
-            it++;
-        }
+            else { return false; }
+            });
         return itletter;
+    }
+    void AlgebraOne::getIts(std::string& arr, std::string::iterator& letter_it, std::string::iterator& equal_it,
+        std::string::iterator& op_before_x, std::string::iterator& op_after_x, std::string::reverse_iterator& r_it1) {
+        equal_it = find(begin(arr), end(arr), '=');
+        letter_it = AlgebraOne::alphaIt(arr);
+        r_it1 = std::make_reverse_iterator(letter_it);
+        r_it1 = std::find_if(r_it1, rend(arr), basic.lmbda.r_is_in_opstring);
+        if (r_it1 != rend(arr)){ op_before_x = r_it1.base() - 1; }
+        else { op_before_x = r_it1.base(); }
+        op_after_x = std::find_if(letter_it, end(arr), basic.lmbda.is_in_opstring);
     }
     void AlgebraOne::quickSolve(std::string& side) {
         inter.interpret(side);
         basic.simpleMath(side, inter.simple, inter.addition, inter.subtraction,
             inter.multiplication, inter.division, inter.pairsofparenthesis, inter.exponent);
+        side = std::to_string(basic.answer);
     } 
     
-    void AlgebraOne::combineLikeTerms(std::string& arr, std::string::iterator itequal, std::string::iterator itletter) {
-        std::string firstnum;
-        std::string secondnum;
-        std::string::iterator x_numit;
-        std::string ops = "+-*/";
-        //x_numit = find_if(begin(arr), itletter, [ops](auto elem)
-            //{return *elem == find(begin(ops), end(ops), *elem); }); //Left off here want to return it of last occurence of a char in ops before letter maybe for_each instead
-        char before_num;
+    void AlgebraOne::combineSides(std::string& arr, std::string::iterator& equal_it, std::string::iterator& letter_it,
+        std::string::iterator& op_before_x, std::string::iterator& op_after_x, std::string::reverse_iterator& r_it1) {
+        std::string firstnum, secondnum;
+
+        char before_num_op;
         std::string x_nums = "";
         double x_num;
         bool left = false;
         answer = "";
-        //5x+3=13
-        
-        //bool right = false;
-        if (itletter < itequal) {
+
+        if (letter_it < equal_it) {
             left = true;
-            before_num = *(itletter + 1);
-            x_num = std::stod(accumulate(begin(arr), itletter, x_nums));
-            firstnum = { itletter + 2, itequal };
-            secondnum = { itequal + 1, end(arr)};
+            switch (*(letter_it + 1)) {
+            case '=':
+                before_num_op = *(begin(arr));
+                if (op_before_x != begin(arr)) {
+                    switch (*op_before_x) {
+                    case '-':
+                        x_num = std::stod(accumulate(op_before_x, op_after_x - 1, x_nums));
+                        break;
+                    default:
+                        x_num = std::stod(accumulate(op_before_x + 1, op_after_x - 1, x_nums));
+                    }
+                    firstnum = { begin(arr), op_before_x };
+                    secondnum = { equal_it + 1, end(arr) };
+                }
+                else {
+                    x_num = std::stod(accumulate(op_before_x, op_after_x - 1, x_nums));
+                    firstnum = "0";
+                    secondnum = { equal_it + 1, end(arr) };
+                }
+                break;
+            default:
+                before_num_op = *(op_after_x);
+                x_num = std::stod(accumulate(begin(arr), letter_it, x_nums));
+                firstnum = { letter_it + 2, equal_it };
+                secondnum = { equal_it + 1, end(arr) };
+            }
         }
         else {
-            //right = true;
-            firstnum = { itletter + 1, end(arr) };//5x+3=13
-            secondnum = { begin(arr), itequal };
+            switch (*op_before_x) {
+            case '=':
+                before_num_op = *(letter_it + 1);
+                x_num = std::stod(accumulate(equal_it + 1, letter_it, x_nums));
+                firstnum = { letter_it + 2, end(arr) };
+                secondnum = { begin(arr), equal_it };
+                break;
+            default:
+                before_num_op = *(equal_it + 1);
+                switch (*op_before_x) {
+                    case '-':
+                        x_num = std::stod(accumulate(op_before_x, op_after_x - 1, x_nums));
+                        break;
+                    default:
+                        x_num = std::stod(accumulate(op_before_x + 1, op_after_x - 1, x_nums));
+                }
+                firstnum = { equal_it + 1, op_before_x };
+                secondnum = { begin(arr), equal_it };
+            }
         }
 
         std::string nums1 = "";
@@ -87,116 +134,188 @@ namespace AlgebraOne {
         double num1 = std::stod(accumulate(begin(firstnum), end(firstnum), nums1));
         double num2 = std::stod(accumulate(begin(secondnum), end(secondnum), nums2));
 
-        if (left == true) {
-            switch (before_num) {
-                case '+':
-                    num2 = num2 - num1;
-                    break;
-                case '-':
-                    num2 = num2 + num1;
-                    break;
-                case '*':
-                    num2 = num2 / num1;
-                    break;
-                case '/':
-                    num2 = num2 * num1;
-                    break;
 
-            }
+        switch (before_num_op) {
+            case '+':
+                num2 = num2 - num1;
+                break;
+            case '-':
+                num2 = num2 + num1;
+                break;
+            case '*':
+                num2 = num2 / num1;
+                break;
+            case '/':
+                num2 = num2 * num1;
+                break;
+            default:
+                num2 = num2 - num1;
+
         }
-        num1 = num2 / x_num; //5x+3=13
 
-        answer = answer + *itletter + *itequal + std::to_string(num1);
-
-        
-
-
+        num1 = num2 / x_num;
+        answer = answer + *letter_it + *equal_it + std::to_string(num1);
     } 
     
     void AlgebraOne::oneLetter(std::string& arr) {
-        //std::string answer;
-
-        auto it = begin(arr);
+        auto it1 = begin(arr);
         auto it2 = begin(arr);
-        auto itletter = begin(arr);
-        auto itequal = find(begin(arr), end(arr), '=');
+        auto it3 = it2 + 1;
+        auto letter_it = AlgebraOne::alphaIt(arr);
+        auto equal_it = find(begin(arr), end(arr), '=');
 
-        for (char elem : arr) {
-            if (AlgebraOne::isInAlpha(elem) == true) {
-                it2 = it;
-                itletter = it;
-                break;
-            }
-            it++;
+        std::string::reverse_iterator r_it1 = std::make_reverse_iterator(letter_it);
+        std::string::reverse_iterator r_it2 = std::make_reverse_iterator(equal_it);
+      
+        r_it1 = std::find_if(r_it1, rend(arr), basic.lmbda.r_is_in_opstring);// sets r_it1 to operator before x
+        
+        if (r_it1 != rend(arr)) {
+            it2 = r_it1.base() - 1;//sets to operator before x
         }
-        while (*it != '+' && *it != '-' && *it != '*' && *it != '/' ) {
-            
-            if (*it == '=' || it == begin(arr)) { 
-                it = it2 + 2;
-                break;
+
+        it3 = std::find_if(letter_it, end(arr), basic.lmbda.is_in_opstring);//set to operator after x
+
+        auto& op_before_x = it2;
+        auto& op_after_x = it3;
+        std::string left_equation;
+        std::string right_equation;
+
+        if (op_before_x == begin(arr) && op_after_x < equal_it){//Essentially if xnum is the first num in the expression
+            if (op_after_x != equal_it) {
+                left_equation = { op_after_x + 1, equal_it };
+                right_equation = { equal_it + 1, end(arr) };
+                AlgebraOne::quickSolve(left_equation);
+                AlgebraOne::quickSolve(right_equation);
+                arr.erase(equal_it + 1, end(arr));
+                arr.insert(equal_it + 1, begin(right_equation), end(right_equation));
+                arr.erase(op_after_x + 1, equal_it);
+                arr.insert(op_after_x + 1, begin(left_equation), end(left_equation));
             }
-            it--;
         }
-        std::string equation1;
-        std::string equation2;
-        bool before_equal = false;
-        bool after_equal = false;
-        if (it == it2 + 2) {
-            while (*it2 != '=' && it2 != end(arr)) {
-                it2++;
+        else if (op_before_x > begin(arr) && op_before_x < equal_it) {//if xnum is before equal i.e. 2+5x+1=13 ot 3+5x=13
+            left_equation = { begin(arr), op_before_x };
+            if (op_after_x != equal_it) {
+                right_equation = { op_after_x + 1, equal_it };
             }
-            equation1 = { it, it2};
-            AlgebraOne::quickSolve(equation1);
+            else {
+                right_equation = "0";
+            }
+            AlgebraOne::quickSolve(left_equation);
+            AlgebraOne::quickSolve(right_equation);
+            switch (*op_after_x) {
+                case '+':
+                    left_equation = std::to_string(stod(left_equation) + stod(right_equation));
+                    arr.erase(op_after_x + 1, equal_it);
+                    arr.insert(op_after_x + 1, begin(left_equation), end(left_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(begin(arr), op_before_x);
+                    break;
+                case '-':
+                    left_equation = std::to_string(stod(left_equation) - stod(right_equation));
+                    arr.erase(op_after_x + 1, equal_it);
+                    arr.insert(op_after_x + 1, begin(left_equation), end(left_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(begin(arr), op_before_x);
+                    break;
+                case '*':
+                    left_equation = std::to_string(stod(left_equation) * stod(right_equation));
+                    arr.erase(op_after_x + 1, equal_it);
+                    arr.insert(op_after_x + 1, begin(left_equation), end(left_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(begin(arr), op_before_x);
+                    break;
+                case '/':
+                    left_equation = std::to_string(stod(left_equation) / stod(right_equation));
+                    arr.erase(op_after_x + 1, equal_it);
+                    arr.insert(op_after_x + 1, begin(left_equation), end(left_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(begin(arr), op_before_x);
+                    break;
+                default:
+                    left_equation = std::to_string(stod(left_equation) + stod(right_equation));
+                    arr.erase(begin(arr), op_before_x);
+                    arr.insert(begin(arr), begin(left_equation), end(left_equation));
+            }
+        }
+        else if (op_before_x == equal_it) {
+            left_equation = {begin(arr), equal_it};
+            right_equation = { op_after_x + 1, end(arr) };
+            AlgebraOne::quickSolve(right_equation);
+            AlgebraOne::quickSolve(left_equation);
+            arr.erase(op_after_x + 1, end(arr));
+            arr.insert(op_after_x + 1, begin(right_equation), end(right_equation));
+            AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+            arr.erase(begin(arr), equal_it);
+            arr.insert(begin(arr), begin(left_equation), end(left_equation));
+        }
+        else if (op_before_x > equal_it) {//for expressions such as 13=1+5x+2
+            left_equation = { equal_it + 1, op_before_x };
+            if (op_after_x != end(arr)) {
+                right_equation = { op_after_x + 1, end(arr)};
+            }
+            else {
+                right_equation = "0";
+            }
+            AlgebraOne::quickSolve(left_equation);
+            AlgebraOne::quickSolve(right_equation);
+            if (op_after_x != end(arr)) {
+                switch (*op_after_x) {
+                case '+':
+                    right_equation = std::to_string(stod(left_equation) + stod(right_equation));
+                    arr.erase(op_after_x + 1, end(arr));
+                    arr.insert(op_after_x + 1, begin(right_equation), end(right_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(equal_it + 1, op_before_x + 1);
+                    break;
+                case '-':
+                    right_equation = std::to_string(stod(left_equation) - stod(right_equation));
+                    arr.erase(op_after_x + 1, end(arr));
+                    arr.insert(op_after_x + 1, begin(right_equation), end(right_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(equal_it + 1, op_before_x + 1);
+                    break;
+                case '*':
+                    right_equation = std::to_string(stod(left_equation) * stod(right_equation));
+                    arr.erase(op_after_x + 1, end(arr));
+                    arr.insert(op_after_x + 1, begin(right_equation), end(right_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(equal_it + 1, op_before_x + 1);
+                    break;
+                case '/':
+                    right_equation = std::to_string(stod(left_equation) / stod(right_equation));
+                    arr.erase(op_after_x + 1, end(arr));
+                    arr.insert(op_after_x + 1, begin(right_equation), end(right_equation));
+                    AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+                    arr.erase(equal_it + 1, op_before_x + 1);
+                    break;
+                default:
+                    right_equation = std::to_string(stod(left_equation) + stod(right_equation));
+                    arr.erase(begin(arr), op_before_x);
+                    arr.insert(begin(arr), begin(left_equation), end(left_equation));
+                }
+            }
+            else {
+                right_equation = std::to_string(stod(left_equation) + stod(right_equation));
+                arr.erase(equal_it + 1, op_before_x);
+                arr.insert(equal_it + 1, begin(left_equation), end(left_equation));
+            }
         }
         else {
-            equation1 = { begin(arr), it };
-            AlgebraOne::quickSolve(equation1);
+            right_equation = { equal_it + 1, end(arr) };
+            AlgebraOne::quickSolve(right_equation);
+            arr.erase(equal_it + 1, end(arr));
+            arr.insert(equal_it + 1, begin(right_equation), end(right_equation));
         }
-        std::string side1 = std::to_string(basic.answer);
-         
-        if (it2 == itequal) {
-            equation2 = { itequal + 1, end(arr) };
-            AlgebraOne::quickSolve(equation2);
-        }
-        else {
-            equation2 = { begin(arr), itequal };
-            AlgebraOne::quickSolve(equation2);
-        }
-        std::string side2 = std::to_string(basic.answer);
-        std::string leftside;
-        std::string rightside;
-        if (itletter < itequal) {
-            leftside = { begin(side1), end(side1) };
-            rightside = { begin(side2), end(side2) };
-            arr.erase(itletter + 2, itequal);
-            arr.insert(itletter + 2, begin(leftside) , end(leftside));
-            itequal = find(begin(arr), end(arr), '=');
-            arr.erase(itequal + 1, end(arr));
-            arr.insert(itequal + 1, begin(rightside), end(rightside));
-            itequal = find(begin(arr), end(arr), '=');
-            itletter = AlgebraOne::alphaIt(arr);
-        }
-        else {
-            /// <summary>
-            /// This will probably throw an Error when we get to it
-            /// </summary>
-            leftside = { begin(side2), end(side2) };
-            rightside = { begin(side1), end(side1) };
-            arr.erase(begin(arr), itequal);
-            arr.insert(begin(arr), begin(leftside), end(leftside));
-            itequal = find(begin(arr), end(arr), '=' );
-            arr.erase(itletter + 2, end(arr));
-            arr.insert(itletter + 2, begin(rightside), end(rightside));
-            itequal = find(begin(arr), end(arr), '=');
-        }
-        AlgebraOne::combineLikeTerms(arr, itequal, itletter);
+
+        AlgebraOne::getIts(arr, letter_it, equal_it, op_before_x, op_after_x, r_it1);
+        AlgebraOne::combineSides(arr, equal_it, letter_it, op_before_x, op_after_x, r_it1);
     }
-    
-    //5x+3=13
+
     void AlgebraOne::simplify(std::string& arr, int addition, int subtraction, int multiplication,
         int division, int pairsofparenthesis, int exponent, int letters) {
         if (letters == 1) {
             AlgebraOne::oneLetter(arr);
+
         }
     }
 

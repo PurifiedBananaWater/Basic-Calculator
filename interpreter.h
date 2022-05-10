@@ -4,6 +4,7 @@
 #include<algorithm>
 #include<numeric>
 
+
 namespace Interpreter {
     class Interpreter {
         const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -49,7 +50,7 @@ namespace Interpreter {
         switch (operators) {
             case 0:
                 std::string answer = "";
-                double answer1 = std::stod(std::accumulate(begin(arr), end(arr), answer));
+                double answer1 = std::stod(accumulate(begin(arr), end(arr), answer));
         }
 
         for (char i : arr) {
